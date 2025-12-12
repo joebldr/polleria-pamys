@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pollería Pamy's</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Epunda+Slab:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    
+    <style>
+        /* Ajuste rápido para que las tarjetas se vean ordenadas */
+        .paquetes-container, .menu-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            width: 250px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .card img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header-logo">
+        <div class="brand">
+            <img src="assets/logo.png" alt="Logo Pamy's" class="logo" onerror="this.style.display='none'">
+        </div>
+
+        <nav>
+            <button onclick="showSection('inicio')">
+                <i class="fa-solid fa-house"></i> Inicio
+            </button>
+    
+            <button onclick="showSection('menu')">
+                <i class="fa-solid fa-drumstick-bite"></i> Menú
+            </button>
+    
+            <button onclick="showSection('contacto')">
+                <i class="fa-solid fa-envelope"></i> Contacto
+            </button>
+    
+            <button onclick="showSection('carrito')">
+                <i class="fa-solid fa-cart-shopping"></i> Carrito (<span id="contador-carrito">0</span>)
+            </button>
+    
+            <button id="btn-panel-admin" onclick="window.location.href='admin.html'" style="display: none; background-color: #d32f2f; border-color: #d32f2f;">
+                <i class="fa-solid fa-gear"></i> Panel Admin
+            </button>
+
+            <button id="btn-login" onclick="window.location.href='login.html'" style="background-color: #333; border-color: #333;">
+             <i class="fa-solid fa-user"></i> Ingresar
+            </button>
+        </nav>
+    </header>
+
+    <main>
+        <section id="inicio" class="section active">
+            <div class="hero">
+                <img src="assets/pollo.jpg" class="hero-img" alt="Pollo Pamy's" onerror="this.src='https://via.placeholder.com/800x300'">
+                <div class="hero-text">
+                    <h2>Bienvenido</h2>
+                    <p>Aquí el pollo es sabroso, fresco y con sabor casero real. Pamys: pollo bien hecho.</p>
+                </div>
+            </div>
+
+            <h2 class="section-title">Conoce nuestras promociones disponibles</h2>
+            <p class="disclaimer"> 
+              Precios válidos hasta el 31 de Diciembre de 2025. Aplican restricciones.
+            </p>
+        
+            <div class="paquetes-container" id="container-promociones">
+                <p>Cargando promociones...</p>
+            </div>
+        </section>
+
+        <section id="menu" class="section">
+            <h2 class="section-title">Nuestro Menú a la carta</h2>
+            <p class="hero-text"> Elige algo en específico entre nuestra gran variedad.</p>
+            
+            <div class="menu-list" id="container-menu">
+                <p>Cargando menú...</p>
+            </div>
+        </section>
+
+        <section id="contacto" class="section">
+            <h2 class="section-title">Contacto</h2>
+            <div class="form-container">
+                <form onsubmit="event.preventDefault(); alert('Mensaje enviado');">
+                    <label>Nombre:</label>
+                    <input type="text" required placeholder="Tu nombre">
+                    <label>Correo:</label>
+                    <input type="email" required placeholder="tucorreo@ejemplo.com">
+                    <label>Mensaje:</label>
+                    <textarea required placeholder="Escribe tu mensaje aquí..."></textarea>
+                    <button type="submit" class="btn-submit">Enviar</button>
+                </form>
+            </div>
+        </section>
+
+        <section id="carrito" class="section">
+            <h2 class="section-title">Tu Carrito</h2>
+            <p class="disclaimer"> Estás a un paso de complacer a tu antojo...</p>
+            <br>
+            <div class="carrito-box">
+                <div id="carrito-lista">
+                    <p style="text-align: center; color: #888;">Tu carrito está vacío. Agrega algún producto.</p>
+                </div>
+                
+                <div class="carrito-total-container" style="margin-top: 20px; text-align: right; font-size: 1.2rem;">
+                    <span>Total a pagar:</span>
+                    <strong id="texto-total-general">$0</strong>
+                </div>
+
+                <button class="btn-submit checkout-btn" onclick="pagarPedido()" style="margin-top: 20px;">
+                    Pagar Ahora ($<span id="span-total-boton">0</span>)
+                </button>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-col">
+                <h3>Pollería Pamy's</h3>
+                <p>© 2025 - Durango, Dgo.</p>
+                <p>¡El sabor que te hace volver!</p>
+            </div>
+            <div class="footer-col">
+                <h3>Contacto</h3>
+                <p>📍 <a href="#" target="_blank">Ver ubicación</a></p>
+                <p>📞 <a href="tel:+526188361213">618 836 1213</a></p>
+            </div>
+            <div class="footer-col">
+                <h3>Horario</h3>
+                <p>🕒 9:30 a.m. – 6:30 p.m.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+    // ==========================================
+    // 1. VARIABLES GLOBALES
+    // ==========================================
+    let carritoDeCompras = [];
+    let totalAcumulado = 0;
+    const API_URL = '/api/products';
+    const PAY_URL = '/api/create-checkout-session';
+
+    // ==========================================
+    // 2. LÓGICA DE INICIO Y CARGA
+    // ==========================================
+    document.addEventListener('DOMContentLoaded', async () => {
+        // A. Revisar usuario/admin
+        checkLoginStatus();
+
+        // B. Cargar productos del servidor
+        try {
+            const respuesta = await fetch(API_URL);
+            if (!respuesta.ok) throw new Error("Error servidor");
+            const productos = await respuesta.json();
+            renderizarProductos(productos);
+        } catch (error) {
+            console.error('Error cargando productos:', error);
+            document.getElementById('container-promociones').innerHTML = '<p>Error de conexión con el servidor.</p>';
+            document.getElementById('container-menu').innerHTML = '<p>Error de conexión con el servidor.</p>';
+        }
+    });
+
+    function checkLoginStatus() {
+        const rol = localStorage.getItem('rol');
+        const token = localStorage.getItem('token');
+        const btnAdmin = document.getElementById('btn-panel-admin');
+        const btnLogin = document.getElementById('btn-login');
+
+        if (rol === 'admin' && token) {
+            btnAdmin.style.display = 'inline-block';
+        }
+
+        if (token) {
+            btnLogin.innerHTML = '<i class="fa-solid fa-right-from-bracket"></i> Salir';
+            btnLogin.style.backgroundColor = '#555';
+            btnLogin.onclick = function() {
+                localStorage.clear();
+                window.location.href = 'index.html';
+            };
+        }
+    }
+
+    // ==========================================
+    // 3. RENDERIZADO (DIBUJAR PRODUCTOS)
+    // ==========================================
+    function renderizarProductos(productos) {
+        const promoContainer = document.getElementById('container-promociones');
+        const menuContainer = document.getElementById('container-menu');
+
+        // Limpiar contenedores
+        promoContainer.innerHTML = '';
+        menuContainer.innerHTML = '';
+
+        if(productos.length === 0) {
+            promoContainer.innerHTML = '<p>No hay productos disponibles.</p>';
+            return;
+        }
+
+        productos.forEach(prod => {
+            const htmlCard = `
+                <div class="card">
+                    <img src="${prod.imagen || 'assets/logo.png'}" alt="${prod.nombre}" onerror="this.src='https://via.placeholder.com/200'">
+                    <div class="card-content">
+                        <h3>${prod.nombre}</h3>
+                        ${prod.descripcion ? `<p style="font-size:0.9rem; color:#666;">${prod.descripcion}</p>` : ''}
+                        <br>
+                        <span style="font-size:1.2rem; font-weight:bold; color:#d35400;">$${prod.precio}</span>
+                        <br><br>
+                        <button class="btn-add" style="background:#ff9800; color:white; border:none; padding:10px; cursor:pointer; border-radius:5px;" 
+                                onclick="addToCart('${prod.nombre}', ${prod.precio})">
+                            <i class="fa-solid fa-cart-plus"></i> Agregar
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            if (prod.categoria === 'promocion') {
+                promoContainer.innerHTML += htmlCard;
+            } else {
+                menuContainer.innerHTML += htmlCard;
+            }
+        });
+    }
+
+    // ==========================================
+    // 4. FUNCIONES DEL CARRITO
+    // ==========================================
+    function addToCart(nombre, precio) {
+        // Guardar en memoria
+        carritoDeCompras.push({ nombre, precio });
+        totalAcumulado += precio;
+
+        // Actualizar HTML del carrito
+        actualizarCarritoVisual();
+
+        // Actualizar contador del header
+        const contador = document.getElementById('contador-carrito');
+        if(contador) contador.innerText = carritoDeCompras.length;
+
+        // Feedback simple
+        alert(`¡${nombre} agregado!`);
+    }
+
+    function actualizarCarritoVisual() {
+        const lista = document.getElementById('carrito-lista');
+        const textoTotal = document.getElementById('texto-total-general');
+        const spanBoton = document.getElementById('span-total-boton');
+
+        // Limpiar lista visual
+        lista.innerHTML = '';
+
+        if (carritoDeCompras.length === 0) {
+            lista.innerHTML = '<p style="text-align: center; color: #888;">El carrito está vacío.</p>';
+        } else {
+            carritoDeCompras.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.style.borderBottom = '1px solid #eee';
+                div.style.padding = '10px 0';
+                div.style.display = 'flex';
+                div.style.justifyContent = 'space-between';
+                div.innerHTML = `<span>${item.nombre}</span> <strong>$${item.precio}</strong>`;
+                lista.appendChild(div);
+            });
+        }
+
+        // Actualizar precios totales
+        textoTotal.innerText = '$' + totalAcumulado;
+        spanBoton.innerText = totalAcumulado;
+    }
+
+    // ==========================================
+    // 5. PROCESO DE PAGO (STRIPE)
+    // ==========================================
+    async function pagarPedido() {
+        if (carritoDeCompras.length === 0) {
+            alert("Tu carrito está vacío. ¡Agrega pollito primero!");
+            return;
+        }
+
+        const btnPagar = document.querySelector('.checkout-btn');
+        const textoOriginal = btnPagar.innerHTML;
+        
+        btnPagar.innerText = "Conectando...";
+        btnPagar.disabled = true;
+
+        try {
+            // Enviamos el carrito al backend
+            const response = await fetch('http://localhost:3000/api/create-checkout-session', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ carrito: carritoDeCompras })
+            });
+
+            const data = await response.json();
+
+            if (data.url) {
+                // ÉXITO: Redirigir a Stripe
+                window.location.href = data.url;
+            } else {
+                throw new Error(data.error || "No se recibió la URL de pago");
+            }
+
+        } catch (error) {
+            console.error(error);
+            alert("Error: " + error.message);
+            btnPagar.innerHTML = textoOriginal;
+            btnPagar.disabled = false;
+        }
+    }
+
+    // ==========================================
+    // 6. NAVEGACIÓN
+    // ==========================================
+    function showSection(id) {
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        window.scrollTo(0,0); // Subir al inicio al cambiar sección
+    }
+    </script>
+</body>
+</html>

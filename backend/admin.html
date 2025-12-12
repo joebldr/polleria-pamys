@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Pollería Pamy's</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Epunda+Slab:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+
+    <style>
+        /* Estilos específicos para el panel de admin */
+        body { padding: 20px; }
+        .admin-container { max-width: 800px; margin: 0 auto; }
+        
+        .form-box {
+            background: white; padding: 20px; border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 30px;
+            border: 2px solid #ff9800;
+        }
+        
+        input, select, textarea {
+            width: 100%; padding: 10px; margin: 5px 0 15px;
+            border: 1px solid #ccc; border-radius: 5px;
+        }
+        
+        .product-list {
+            background: white; padding: 20px; border-radius: 10px;
+        }
+
+        .admin-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 10px; border-bottom: 1px solid #eee;
+        }
+
+        .btn-delete {
+            background: #d32f2f; color: white; border: none;
+            padding: 5px 15px; border-radius: 5px; cursor: pointer;
+        }
+        
+        .btn-back {
+            background: #333; color: white; padding: 10px 20px;
+            text-decoration: none; border-radius: 5px; display: inline-block; margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="admin-container">
+        <a href="index.html" class="btn-back">⬅ Volver a la página principal</a>
+        
+        <h1 style="text-align: center; color: #d32f2f;">Panel de Administración</h1>
+
+        <div class="form-box">
+            <h2>Agregar Nuevo Producto</h2>
+            <form onsubmit="guardarProducto(event)">
+                <label>Nombre del Producto:</label>
+                <input type="text" id="nombre" required placeholder="Ej: Pollo Fiesta">
+
+                <label>Precio:</label>
+                <input type="number" id="precio" required placeholder="Ej: 150">
+
+                <label>Descripción:</label>
+                <input type="text" id="descripcion" placeholder="Ej: Incluye papas y salsa">
+
+                <label>Categoría:</label>
+                <select id="categoria">
+                    <option value="menu">Menú General</option>
+                    <option value="promocion">Promoción</option>
+                </select>
+
+                <label>URL de Imagen:</label>
+                <input type="text" id="imagen" placeholder="assets/nombre-imagen.jpg" value="assets/logo.png">
+                <small>Nota: Si no tienes imagen, deja la del logo o pega un link de internet.</small>
+
+                <button type="submit" class="btn-submit" style="margin-top: 15px;">Guardar Producto</button>
+            </form>
+        </div>
+
+        <div class="product-list">
+            <h2>Inventario Actual</h2>
+            <div id="lista-admin">Cargando productos...</div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:3000/api/products';
+
+        // 1. Cargar productos al abrir
+        cargarProductos();
+
+        async function cargarProductos() {
+            const res = await fetch(API_URL);
+            const productos = await res.json();
+            const lista = document.getElementById('lista-admin');
+            
+            lista.innerHTML = '';
+            productos.forEach(prod => {
+                lista.innerHTML += `
+                    <div class="admin-item">
+                        <div>
+                            <strong>${prod.nombre}</strong> - $${prod.precio} 
+                            <span style="color: #888; font-size: 0.8em">(${prod.categoria})</span>
+                        </div>
+                        <button class="btn-delete" onclick="borrarProducto('${prod._id}')">Borrar 🗑️</button>
+                    </div>
+                `;
+            });
+        }
+
+        // 2. Guardar Nuevo Producto
+        async function guardarProducto(e) {
+            e.preventDefault(); // Evita que se recargue la página
+
+            const nuevoProducto = {
+                nombre: document.getElementById('nombre').value,
+                precio: document.getElementById('precio').value,
+                descripcion: document.getElementById('descripcion').value,
+                categoria: document.getElementById('categoria').value,
+                imagen: document.getElementById('imagen').value
+            };
+
+            if(confirm('¿Seguro que quieres agregar este producto?')) {
+                await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(nuevoProducto)
+                });
+                
+                alert('¡Producto Agregado!');
+                document.querySelector('form').reset(); // Limpia el formulario
+                cargarProductos(); // Recarga la lista de abajo
+            }
+        }
+
+        // 3. Borrar Producto
+        async function borrarProducto(id) {
+            if(confirm('¿Estás SEGURO de borrar este producto? No se puede deshacer.')) {
+                await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+                alert('Producto eliminado');
+                cargarProductos();
+            }
+        }
+    </script>
+</body>
+</html>
