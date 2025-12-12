@@ -1,0 +1,450 @@
+/* =========================================
+   1. RESET Y ESTILOS GENERALES
+   ========================================= */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    /* AQUÍ APLICAMOS LA FUENTE EPUNDA SLAB */
+    font-family: 'Epunda Slab', serif;
+    background-color: #f9f9f9;
+    color: #333;
+    line-height: 1.6;
+    padding-bottom: 0px;
+}
+/* =========================================
+   2. ENCABEZADO (HEADER) Y NAVEGACIÓN
+   ========================================= */
+.header-logo {
+    background-color: #ff9800; /* Naranja Pamy's */
+    padding: 15px 30px;
+    
+    /* ESTRUCTURA: CENTRADO Y EN COLUMNA */
+    display: flex;
+    flex-direction: column; /* Pone el logo arriba y menú abajo */
+    align-items: center;    /* Centra todo horizontalmente */
+    gap: 15px;              /* Espacio entre el logo y los botones */
+    
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    position: static;
+    top: 0;
+    z-index: 100;
+    position: sticky;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    color: white;
+    font-weight: bold;
+    font-size: 1.5rem; /* Ajustado ligeramente para que luzca bien centrado */
+}
+
+.logo {
+    height: 80px;
+    margin-right: 15px;
+    background-color: transparent;
+    border-radius: 0%;
+    padding: 2px;
+}
+
+/* Contenedor de los botones para asegurar el centrado */
+nav {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px; /* Espacio uniforme entre botones */
+}
+
+nav button {
+    /* TUS ESTILOS EXACTOS */
+    font-family: 'Epunda Slab', serif;
+    font-size: 1rem;
+    background-color: orangered;
+    border: 2px solid white;
+    color: white;
+    padding: 8px 15px; /* Aumenté un poquito el ancho para que se vea mejor el texto */
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    display: inline-flex;  /* Alinea ícono y texto horizontalmente */
+    align-items: center;   /* Centra verticalmente */
+    gap: 8px;              /* Espacio entre el ícono y el texto */
+}
+
+nav button:hover {
+    background-color: white;
+    color: orangered;
+}
+/* =========================================
+   3. ESTRUCTURA DE PESTAÑAS (SECCIONES)
+   ========================================= */
+.section {
+    display: none; /* Oculto por defecto */
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+    animation: fadeIn 0.5s ease-in;
+}
+
+.section.active {
+    display: block; /* Visible cuando está activo */
+}
+
+@keyframes fadeIn {
+    from { 
+        opacity: 0; 
+        transform: translateY(10px); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0); 
+    }
+}
+
+.section-title {
+    text-align: center;
+    margin: 40px 0 20px;
+    color: orangered;
+    text-transform: uppercase;
+    border-bottom: 2px solid #ddd;
+    padding-bottom: 10px;
+}
+.disclaimer {
+    color: #aaa;
+    text-align: center;
+}
+
+/* =========================================
+   4. ESTILOS DEL HÉROE (IMAGEN PRINCIPAL)
+   ========================================= */
+.hero {
+    text-align: center;
+    font-size: 1.25rem;
+    background: white;
+    padding: 15px;
+    border-radius: 20px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.25);
+    margin-bottom: 30px;
+}
+
+.hero-img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.25);
+    max-height: 400px;
+    object-fit: cover;
+    margin-bottom: 10px;
+}
+
+/* =========================================
+   5. TARJETAS (PAQUETES Y MENÚ)
+   ========================================= */
+/* Contenedor en cuadrícula (Grid) */
+.paquetes-container {
+    display: grid;
+    /* Por defecto: 4 columnas iguales */
+    grid-template-columns: repeat(4, 1fr); 
+    gap: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 10px;
+}
+
+/* Para el menú, podemos mantener flex o usar la misma lógica. 
+   Si quieres que el menú TAMBIÉN sea de 4 o 2x2, agrégalo aquí: 
+   .paquetes-container, .menu-list { ... } 
+*/
+/* --- CORRECCIÓN PARA EL MENÚ --- */
+
+.menu-list {
+    display: grid;
+    /* TRUCO DE MAGIA: */
+    /* Crea tantas columnas como quepan, pero que cada tarjeta mida al menos 260px */
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    
+    gap: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 10px;
+}
+
+.card {
+    background: white;
+    border: 1px solid #eee;
+    border-radius: 10px;
+    
+    /* CAMBIO CLAVE: Quita 'width: 280px' y pon 'width: 100%' */
+    width: 100%; 
+    
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+    display: flex;
+    flex-direction: column;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+.card img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.card-content {
+    padding: 15px;
+    text-align: center;
+    flex-grow: 1; /* Esto hace que el contenido ocupe todo el espacio disponible */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.card h3 {
+    margin-bottom: 10px;
+    font-size: 1.5rem;
+    color: #333;
+}
+
+.price, 
+.precio {
+    color: orangered;
+    font-weight: bold;
+    font-size: 1.4rem;
+    margin: 5px 0;
+    display: block;
+}
+
+.desc {
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 15px;
+}
+
+/* Estilo del botón "Agregar al carrito" en las tarjetas */
+.btn-add {
+    background-color: #d32f2f;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 100%;
+    margin-top: auto; 
+    font-weight: bold;
+    transition: background-color 0.2s;
+
+    /* ESTO ES NUEVO PARA EL ÍCONO: */
+    display: flex;             /* Activa el modo flexible */
+    justify-content: center;   /* Centra todo horizontalmente */
+    align-items: center;       /* Centra verticalmente */
+    gap: 10px;                 /* Espacio entre el ícono y el texto */
+    font-size: 1rem;           /* Asegura buen tamaño de letra */
+}
+
+.btn-add:hover {
+    background-color: #b71c1c;
+}
+
+/* =========================================
+   6. FORMULARIO DE CONTACTO
+   ========================================= */
+.form-container {
+    max-width: 500px;
+    margin: 0 auto;
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+form label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #555;
+}
+
+form input, 
+form textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+form textarea {
+    height: 120px;
+    resize: vertical;
+}
+
+.btn-submit {
+    font-family: 'Epunda Slab', serif;
+    background-color: orangered;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    width: 100%;
+    font-weight: bold;
+    transition: background-color 0.2s;
+}
+
+.btn-submit:hover {
+    background-color: orange;
+}
+
+/* =========================================
+   7. ESTILOS DEL CARRITO (NUEVO)
+   ========================================= */
+.carrito-box {
+    background: white;
+    padding: 25px;
+    border-radius: 10px;
+    max-width: 600px;
+    margin: 0 auto;
+    border: 1px solid #ddd;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+.carrito-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid #eee;
+    font-size: 1.1rem;
+}
+
+/* Contenedor del precio total */
+.carrito-total-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 2px dashed #ccc;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 25px;
+}
+
+#total-precio {
+    color: #d32f2f; /* Color rojo para destacar el precio */
+    font-size: 1.8rem;
+}
+
+/* =========================================
+   8. PIE DE PÁGINA (FOOTER) MEJORADO
+   ========================================= */
+.footer {
+    background-color: #222; /* Un gris más oscuro para elegancia */
+    color: #eee;
+    padding: 40px 20px;
+    margin-top: 50px;
+    font-size: 0.95rem;
+    border-top: 5px solid #ff9800; /* Línea decorativa naranja */
+}
+
+/* Contenedor flexible para columnas */
+.footer-container {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 30px;
+    text-align: left; /* Alineado a la izquierda se lee mejor */
+}
+
+.footer-col {
+    flex: 1 1 250px; /* Las columnas se ajustan pero no bajan de 250px */
+    margin-bottom: 10px;
+}
+
+.footer-col h3 {
+    color: #ff9800;
+    margin-bottom: 15px;
+    font-size: 1.2rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.footer-col p {
+    margin: 8px 0;
+    line-height: 1.6;
+}
+
+/* Estilos para los enlaces del footer */
+.footer-col a {
+    color: #eee;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.footer-col a:hover {
+    color: #ff9800;
+    text-decoration: underline;
+}
+
+.horario-destacado {
+    font-weight: bold;
+    color: #fff;
+    font-size: 1.1rem;
+}
+
+/* Ajuste para móviles: Centrar todo cuando la pantalla es pequeña */
+@media (max-width: 600px) {
+    .footer-container {
+        flex-direction: column;
+        text-align: center;
+    }
+}
+/* Ajustes para pantallas pequeñas (Celulares) */
+@media (max-width: 600px) {
+    .header-logo {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+    
+    nav {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    nav button {
+        margin: 0;
+        font-size: 0.9rem;
+    }
+}
+/* --- RESPONSIVE GRID (AL FINAL DEL ARCHIVO) --- */
+
+/* En pantallas medianas (menos de 1100px), cambiamos a 2 columnas (2x2) */
+@media (max-width: 1100px) {
+    .paquetes-container {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* En celulares (menos de 600px), cambiamos a 1 sola columna */
+@media (max-width: 600px) {
+    .paquetes-container {
+        grid-template-columns: 1fr;
+    }
+}

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acceso Pamy's</title>
+    <link href="https://fonts.googleapis.com/css2?family=Epunda+Slab:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body { 
+            display: flex; justify-content: center; align-items: center; 
+            min-height: 100vh; background-color: #333; 
+            background-image: url('assets/fondologin.jpg'); /* Opcional: fondo bonito */
+            background-size: cover; background-blend-mode: overlay;
+        }
+        .login-wrapper { 
+            background: white; padding: 40px; border-radius: 10px; 
+            width: 100%; max-width: 400px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+        .tabs { display: flex; justify-content: space-around; margin-bottom: 20px; border-bottom: 1px solid #ddd; }
+        .tab { 
+            padding: 10px; cursor: pointer; font-weight: bold; color: #888; 
+            border-bottom: 3px solid transparent; width: 50%; text-align: center;
+        }
+        .tab.active { color: #ff9800; border-bottom: 3px solid #ff9800; }
+        
+        input { width: 100%; margin-bottom: 15px; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="login-wrapper">
+        <h2 style="text-align: center; margin-bottom: 20px;">Bienvenido a Pamy's</h2>
+        
+        <div class="tabs">
+            <div class="tab active" onclick="cambiarTab('login')">Iniciar Sesión</div>
+            <div class="tab" onclick="cambiarTab('registro')">Registrarse</div>
+        </div>
+
+        <form id="form-login" onsubmit="procesarLogin(event)">
+            <label>Correo:</label>
+            <input type="email" id="login-email" required placeholder="tu@correo.com">
+            
+            <label>Contraseña:</label>
+            <input type="password" id="login-password" required placeholder="******">
+            
+            <button type="submit" class="btn-submit">Entrar</button>
+        </form>
+
+        <form id="form-registro" class="hidden" onsubmit="procesarRegistro(event)">
+            <label>Nombre Completo:</label>
+            <input type="text" id="reg-nombre" required placeholder="Ej. Juan Pérez">
+
+            <label>Correo:</label>
+            <input type="email" id="reg-email" required placeholder="tu@correo.com">
+            
+            <label>Contraseña:</label>
+            <input type="password" id="reg-password" required placeholder="Crea una contraseña">
+            
+            <button type="submit" class="btn-submit" style="background-color: #4CAF50;">Crear Cuenta</button>
+        </form>
+
+        <p style="margin-top: 20px; text-align: center;">
+            <a href="index.html" style="color: #666; text-decoration: none;">⬅ Volver al inicio</a>
+        </p>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:3000/api';
+
+        // 1. Lógica de Pestañas
+        function cambiarTab(modo) {
+            const loginForm = document.getElementById('form-login');
+            const regForm = document.getElementById('form-registro');
+            const tabs = document.querySelectorAll('.tab');
+
+            if(modo === 'login') {
+                loginForm.classList.remove('hidden');
+                regForm.classList.add('hidden');
+                tabs[0].classList.add('active');
+                tabs[1].classList.remove('active');
+            } else {
+                loginForm.classList.add('hidden');
+                regForm.classList.remove('hidden');
+                tabs[0].classList.remove('active');
+                tabs[1].classList.add('active');
+            }
+        }
+
+        // 2. Procesar LOGIN
+        async function procesarLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+
+            try {
+                const res = await fetch(`${API_URL}/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await res.json();
+
+                if (res.ok) {
+                    // Guardamos sesión
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('rol', data.role);
+                    localStorage.setItem('usuario', data.nombre);
+
+                    // Redirección inteligente
+                    if(data.role === 'admin') {
+                        window.location.href = 'admin.html';
+                    } else {
+                        alert(`¡Hola de nuevo, ${data.nombre}!`);
+                        window.location.href = 'index.html';
+                    }
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            } catch (error) {
+                alert('Error de conexión con el servidor');
+            }
+        }
+
+        // 3. Procesar REGISTRO
+        async function procesarRegistro(e) {
+            e.preventDefault();
+            const nombre = document.getElementById('reg-nombre').value;
+            const email = document.getElementById('reg-email').value;
+            const password = document.getElementById('reg-password').value;
+
+            try {
+                const res = await fetch(`${API_URL}/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    // Por seguridad, el rol no se envía, el backend pone 'user' por defecto
+                    body: JSON.stringify({ nombre, email, password })
+                });
+
+                if (res.ok) {
+                    alert('¡Cuenta creada con éxito! Ahora inicia sesión.');
+                    cambiarTab('login'); // Cambiamos a la pestaña de login automáticamente
+                } else {
+                    alert('Error: El correo ya está registrado o hubo un fallo.');
+                }
+            } catch (error) {
+                alert('Error de conexión');
+            }
+        }
+    </script>
+</body>
+</html>
