@@ -2,11 +2,11 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const path = require('path'); // <--- 1. AGREGAMOS ESTO PARA MANEJAR RUTAS
 
 // --- 🔴 PEGA AQUÍ TU CLAVE SECRETA (SECRET KEY) 🔴 ---
-// Ve a Stripe Dashboard > Developers > API Keys.
-// Copia la que dice "Secret key" y empieza con "sk_test_..."
-const stripe = require('stripe')('sk_test_TU_CLAVE_SECRETA_AQUI_REEMPLAZAME'); 
+// Asegúrate de que empiece con "sk_test_"
+const stripe = require('stripe')(process.env.STRIPE_KEY || 'sk_test_TU_CLAVE_REAL_VA_AQUI'); 
 
 const app = express();
 
@@ -14,12 +14,16 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-// --- IMPORTANTE: ESTO PERMITE QUE STRIPE TE DEVUELVA A TU PÁGINA ---
-// Sirve los archivos HTML/CSS/Imágenes desde la carpeta actual
-app.use(express.static('.')); 
+// --- 2. SOLUCIÓN DEFINITIVA AL ERROR "Cannot GET /" ---
+// Esto le dice al servidor: "Si alguien pide la raíz, dale el index.html"
+app.use(express.static(__dirname));
+
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
 
 // --- CONEXIÓN A MONGODB ATLAS ---
-const MONGO_URI = 'mongodb+srv://adminjoe:0000@cluster0.tqr12fb.mongodb.net/pamysDB?appName=Cluster0';
+const MONGO_URI = process.env.MONGO_URI || 'mongodb+srv://adminjoe:0000@cluster0.tqr12fb.mongodb.net/pamysDB?appName=Cluster0';
 
 mongoose.connect(MONGO_URI)
     .then(() => console.log('✅ Base de datos Atlas conectada'))
@@ -88,6 +92,9 @@ app.post('/api/create-checkout-session', async (req, res) => {
             return res.status(400).json({ error: "El carrito está vacío" });
         }
 
+        // 3. DETECTAR EL DOMINIO AUTOMÁTICAMENTE (Para que funcione en Render y Localhost)
+        const dominio = req.headers.origin; 
+
         const line_items = carrito.map(producto => ({
             price_data: {
                 currency: 'mxn',
@@ -103,9 +110,9 @@ app.post('/api/create-checkout-session', async (req, res) => {
             payment_method_types: ['card'],
             line_items: line_items,
             mode: 'payment',
-            // Al terminar el pago, Stripe redirige a estas URLs:
-            success_url: `http://localhost:${process.env.PORT || 3000}/index.html?pago=exito`,
-            cancel_url: `http://localhost:${process.env.PORT || 3000}/index.html?pago=cancelado`,
+            // AQUÍ USAMOS LA VARIABLE 'dominio' EN LUGAR DE LOCALHOST FIJO
+            success_url: `${dominio}/index.html?pago=exito`,
+            cancel_url: `${dominio}/index.html?pago=cancelado`,
         });
 
         console.log("✅ Sesión creada exitosamente. URL:", session.url);
@@ -113,16 +120,15 @@ app.post('/api/create-checkout-session', async (req, res) => {
 
     } catch (error) {
         console.error("❌ ERROR STRIPE:", error.message); 
-        // Si el error es de autenticación, avisamos claramente
         if(error.type === 'StripeAuthenticationError') {
-            return res.status(500).json({ error: "Error de Clave Secreta de Stripe (Revisa server.js)" });
+            return res.status(500).json({ error: "Error de Clave Secreta de Stripe" });
         }
         res.status(500).json({ error: error.message });
     }
 });
 
 // --- INICIAR SERVIDOR ---
-const PORT = process.env.PORT || 3000; // Si la nube da un puerto, úsalo. Si no, usa 3000.
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`🚀 Servidor corriendo`);
+    console.log(`🚀 Servidor corriendo en puerto ${PORT}`);
 });
