@@ -1,0 +1,128 @@
+require('dotenv').config();
+const express = require('express');
+const mongoose = require('mongoose');
+const cors = require('cors');
+
+// --- 🔴 PEGA AQUÍ TU CLAVE SECRETA (SECRET KEY) 🔴 ---
+// Ve a Stripe Dashboard > Developers > API Keys.
+// Copia la que dice "Secret key" y empieza con "sk_test_..."
+const stripe = require('stripe')('sk_test_TU_CLAVE_SECRETA_AQUI_REEMPLAZAME'); 
+
+const app = express();
+
+// Middleware
+app.use(express.json());
+app.use(cors());
+
+// --- IMPORTANTE: ESTO PERMITE QUE STRIPE TE DEVUELVA A TU PÁGINA ---
+// Sirve los archivos HTML/CSS/Imágenes desde la carpeta actual
+app.use(express.static('.')); 
+
+// --- CONEXIÓN A MONGODB ATLAS ---
+const MONGO_URI = 'mongodb+srv://adminjoe:0000@cluster0.tqr12fb.mongodb.net/pamysDB?appName=Cluster0';
+
+mongoose.connect(MONGO_URI)
+    .then(() => console.log('✅ Base de datos Atlas conectada'))
+    .catch(err => console.error('❌ Error de conexión BD:', err));
+
+// --- MODELOS ---
+const ProductSchema = new mongoose.Schema({
+    nombre: { type: String, required: true },
+    precio: { type: Number, required: true },
+    descripcion: String,
+    imagen: String,
+    categoria: { type: String, enum: ['promocion', 'menu'], required: true }
+});
+const Product = mongoose.model('Product', ProductSchema);
+
+// --- RUTAS API ---
+
+// 1. Obtener productos
+app.get('/api/products', async (req, res) => {
+    try {
+        const products = await Product.find();
+        res.json(products);
+    } catch (error) {
+        res.status(500).json({ error: 'Error al obtener productos' });
+    }
+});
+
+// 2. Crear producto
+app.post('/api/products', async (req, res) => {
+    try {
+        const product = await Product.create(req.body);
+        res.json(product);
+    } catch (error) {
+        res.status(500).json({ error: 'Error al crear producto' });
+    }
+});
+
+// 3. Borrar producto
+app.delete('/api/products/:id', async (req, res) => {
+    try {
+        await Product.findByIdAndDelete(req.params.id);
+        res.json({ message: 'Eliminado' });
+    } catch (error) {
+        res.status(500).json({ error: 'Error al eliminar' });
+    }
+});
+
+// 4. Editar producto
+app.put('/api/products/:id', async (req, res) => {
+    try {
+        const updatedProduct = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        res.json(updatedProduct);
+    } catch (error) {
+        res.status(500).json({ error: 'Error al actualizar' });
+    }
+});
+
+// --- 5. RUTA DE PAGO STRIPE ---
+app.post('/api/create-checkout-session', async (req, res) => {
+    console.log("💰 Recibiendo solicitud de pago con carrito:", req.body.carrito ? "OK" : "VACÍO");
+
+    try {
+        const { carrito } = req.body;
+
+        if (!carrito || carrito.length === 0) {
+            return res.status(400).json({ error: "El carrito está vacío" });
+        }
+
+        const line_items = carrito.map(producto => ({
+            price_data: {
+                currency: 'mxn',
+                product_data: {
+                    name: producto.nombre,
+                },
+                unit_amount: Math.round(producto.precio * 100), // Stripe usa centavos
+            },
+            quantity: 1,
+        }));
+
+        const session = await stripe.checkout.sessions.create({
+            payment_method_types: ['card'],
+            line_items: line_items,
+            mode: 'payment',
+            // Al terminar el pago, Stripe redirige a estas URLs:
+            success_url: `http://localhost:${process.env.PORT || 3000}/index.html?pago=exito`,
+            cancel_url: `http://localhost:${process.env.PORT || 3000}/index.html?pago=cancelado`,
+        });
+
+        console.log("✅ Sesión creada exitosamente. URL:", session.url);
+        res.json({ url: session.url });
+
+    } catch (error) {
+        console.error("❌ ERROR STRIPE:", error.message); 
+        // Si el error es de autenticación, avisamos claramente
+        if(error.type === 'StripeAuthenticationError') {
+            return res.status(500).json({ error: "Error de Clave Secreta de Stripe (Revisa server.js)" });
+        }
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// --- INICIAR SERVIDOR ---
+const PORT = process.env.PORT || 3000; // Si la nube da un puerto, úsalo. Si no, usa 3000.
+app.listen(PORT, () => {
+    console.log(`🚀 Servidor corriendo`);
+});
